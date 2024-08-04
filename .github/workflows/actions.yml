@@ -1,0 +1,37 @@
+name: Go Cross-Compile
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'  # Specify the Go version you need
+
+    - name: Set app name
+      run: echo "APP_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+
+    - name: Build for Linux ARM v7
+      run: GOOS=linux GOARCH=arm GOARM=7 go build -o ${{ env.APP_NAME }} .
+      
+    - name: Create tar.gz archive
+      run: tar -czf ${{ env.APP_NAME }}-linux-armv7.tar.gz ${{ env.APP_NAME }}
+
+    - name: Upload artifact
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.APP_NAME }}-linux-armv7.tar.gz
+        path: ${{ env.APP_NAME }}-linux-armv7.tar.gz
