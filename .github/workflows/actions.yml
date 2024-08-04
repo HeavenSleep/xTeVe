@@ -23,7 +23,7 @@ jobs:
         go-version: '1.21'  # Specify the Go version you need
 
     - name: Set app name
-      run: echo "APP_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+      run: echo "APP_NAME=$(echo ${{ github.event.repository.name }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
     - name: Build for Linux ARM v7
       run: GOOS=linux GOARCH=arm GOARM=7 go build -o ${{ env.APP_NAME }} .
